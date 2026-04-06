@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Unregelmäßige Verben - Vokabelspiel MA</title>
+<style>
+body { font-family:'Segoe UI',sans-serif; text-align:center; margin:0; padding:0; transition: background 0.5s;}
+h1 { margin-top:20px; transition: color 0.5s;}
+#themeSelector { margin:10px; padding:5px; font-size:16px;}
+#status { display:flex; justify-content:center; gap:20px; margin:20px; transition: background 0.5s; flex-wrap:wrap;}
+
+/* --- Boxen zentriert --- */
+.box {
+display: flex;
+justify-content: center;
+align-items: center;
+text-align: center;
+padding:10px 20px;
+border-radius:12px;
+font-weight:bold;
+font-size:18px;
+box-shadow:0 4px 8px rgba(0,0,0,0.2);
+transition:all 0.5s;
+}
+
+#wort {
+  font-size:32px;
+  margin:20px;
+  font-weight:bold;
+  text-align:center;
+
+  display: block;   /* 👉 KEIN flex mehr */
+}
+/* --- Antwortbuttons 2x2, größere Größe, zentriert --- */
+#antworten {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: nowrap;   /* 👉 bricht um, falls nötig */
+  margin: 20px auto;
+}
+
+#antworten button {
+  min-width: 150px;
+  padding: 15px 20px;
+  font-size: 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+
+#antworten button:hover { transform:scale(1.05); }
+
+#feedback { font-size:24px; margin-top:15px; height:30px; transition:all 0.3s;}
+#timerBarContainer, #progressContainer { width:60%; height:20px; border-radius:10px; margin:10px auto; overflow:hidden; background:#ccc; transition:all 0.5s;}
+#timerBar, #progressBar { height:100%; width:100%; transition: width 0.1s linear;}
+#leben { font-size:24px; margin:10px; }
+
+/* Top 3 Farben */
+.gold {
+  color: #FFD700;
+  font-weight: bold;
+}
+
+.silver {
+  color: #C0C0C0;
+  font-weight: bold;
+}
+
+.bronze {
+  color: #cd7f32;
+  font-weight: bold;
+}
+
+/* Dein eigener Score */
+.me {
+  background: rgba(255,255,255,0.2);
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+/* --- NEU: Layout nebeneinander --- */
+#gameWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0px;
+  margin-top: 20px;
+position: relative; 
+}
+
+#gameArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
+#highscoresContainer {
+  position: fixed;   /* 👈 statt absolute */
+  right: 20px;
+  top: 40px;         /* 👈 frei einstellbar */
+  z-index: 999;
+}
+
+.highscoreBox {
+  position: sticky;
+  top: 20px;   /* 👈 deutlich weiter oben */
+}
+
+/* --- Wort-Highlight sauber zentriert --- */
+.wort-box {
+  background: linear-gradient(135deg, #ff9800, #ff5722);
+  color: white;
+
+  padding: 15px 25px;
+  border-radius: 15px;
+
+  font-size: 36px;   /* 👉 kleiner */
+  font-weight: bold;
+
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+
+  display: block;            /* 👉 GANZE ZEILE */
+  width: fit-content;        /* 👉 Größe nur so groß wie Inhalt */
+  margin: 0 auto 20px auto;  /* 👉 perfekt zentriert */
+
+  letter-spacing: 1px;
+}
+
+
+/* --- ZENTRIERUNG DES SPIELS --- */
+#mainCenter {
+  max-width: 900px;     /* 👉 schöne Spielbreite */
+  margin: 0 auto;       /* 👉 horizontal zentriert */
+  text-align: center;
+}
+#timerBarContainer,
+#progressContainer {
+  display: none;
+}
+/* --- Artikel-Farben --- */
+.btn-der {
+  background: #448aff;   /* blau */
+  color: white;
+}
+
+.btn-die {
+  background: #f44336;   /* rot */
+  color: white;
+}
+
+.btn-das {
+  background: #ffeb3b;   /* gelb */
+  color: black;
+}
+
+.btn-special {
+  background: #9e9e9e;   /* grau */
+  color: white;
+}
+
+#footer {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* 👉 JETZT AUSSERHALB */
+.box span {
+  margin-left: 8px;
+}
+
+.box {
+  gap: 8px;
+}
+
+/* --- STARTSCREEN VERBESSERN --- */
+#startScreen {
+  margin-top: 60px;
+}
+
+#startScreen label {
+  display: block;
+  font-size: 22px;
+  margin: 20px 0 10px 0;
+}
+
+#startScreen input,
+#startScreen select {
+  font-size: 20px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-top: 8px;
+  width: 260px;
+}
+
+#startScreen button {
+  margin-top: 30px;
+  font-size: 24px;
+  padding: 15px 30px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #4caf50;
+  color: white;
+  border: none;
+  transition: 0.3s;
+}
+
+#startScreen button:hover {
+  transform: scale(1.05);
+}
+#startScreen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* --- Highscore einzelne Boxen --- */
+.highscore-item {
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+
+  text-align: center;
+
+  background: rgba(255,255,255,0.2);
+  backdrop-filter: blur(6px);
+
+  transition: 0.3s;
+  border: 2px solid black;
+
+}
+
+.highscore-item:hover {
+  transform: scale(1.05);
+}
+
+/* Top 3 stärker hervorheben */
+.highscore-item.gold {
+  background: linear-gradient(135deg, #FFD700, #ffb300);
+  color: #000;
+}
+
+.highscore-item.silver {
+  background: linear-gradient(135deg, #C0C0C0, #9e9e9e);
+  color: #000;
+}
+
+.highscore-item.bronze {
+  background: linear-gradient(135deg, #cd7f32, #a05a2c);
+  color: #fff;
+}
+.highscore-item {
+  text-align: center;   /* 👈 zentriert Text */
+}
+.highscore-item strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 18px;
+}
+@keyframes slideInRight {
+  from {
+    transform: translateX(80px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.highscoreBox {
+  animation: slideInRight 0.6s ease;
+}
+.highscore-item.me {
+  border: 2px solid #00e5ff;
+  box-shadow: 0 0 15px #00e5ff;
+}
+/* --- Medaillen als Kreise --- */
+.medal-circle {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+  background: white;
+  color: black;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+
+  justify-self: start; /* 👈 bleibt drin */
+}
+/* --- Highscore Zeile korrekt ausrichten --- */
+.highscore-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+}
+
+.highscore-name {
+  text-align: left;
+}
+.highscore-item {
+  text-align: left;
+}
+.highscore-points {
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+  margin-top: 6px;
+}
+.highscore-name {
+  white-space: nowrap;
+}
+.wort-box small {
+  font-size: 14px;
+  opacity: 0.6;
+  background: rgba(255,255,255,0.2);
+  padding: 3px 8px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 8px;
+}
+.hsk-label {
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 8px;
+  color: white;
+  font-weight: bold;
+}
+
+/* Farben */
+.hsk1 { background: #4caf50; }   /* grün */
+.hsk2 { background: #2196f3; }   /* blau */
+.hsk3 { background: #ffc107; color: black; } /* gelb */
+.hsk4 { background: #ff9800; }   /* orange */
+.hsk5 { background: #f44336; }   /* rot */
+
+
+
+
+
+
+
+
+
+.highscore-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;   /* 👉 Abstand nach unten */
+ text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.highscore-entry {
+  margin: 4px 0;         /* 👉 Abstand zwischen Einträgen */
+  padding: 2px 0;
+}
+
+.highscoreBox {
+  text-align: left;
+  max-width: 240px;
+  padding: 15px;
+  border-radius: 16px;
+
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+
+  margin-top: 0;
+}
+.night .highscoreBox {
+  background: rgba(50,50,100,0.25);
+}
+
+
+/* --- Popups --- */
+#top10Popup {
+display:none;
+position:fixed;
+top:40%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#ffeb3b;
+color:#000;
+padding:20px;
+border-radius:15px;
+font-size:24px;
+font-weight:bold;
+box-shadow:0 0 20px rgba(0,0,0,0.5);
+z-index:10000;
+text-align:center;
+}
+#timeOverPopup, #overlay {
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+padding:30px 50px;
+border-radius:20px;
+font-size:28px;
+font-weight:bold;
+box-shadow:0 0 30px rgba(0,0,0,0.7);
+z-index:10000;
+text-align:center;
+}
+#timeOverPopup { background:#ff4444; color:#fff; }
+#overlay { top:0; left:0; transform:none; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9000; }
+
+.correct-answer-highlight {
+color:#00ff00;
+font-weight:bold;
+font-size:32px;
+}
+.error-icon {
+  width: 70px;
+  height: 70px;
+  background: white;
+  color: red;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 40px;
+  margin: 0 auto 10px auto;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+/* --- Tag/Nacht Styles --- */
+.day { 
+  background: #e0f7fa;   /* 👉 nur EINE Farbe */
+  color:#004d40;
+}.night { background:#1a1a2e; color:#f0f0f0;}
+.day .box { background:#ffffffaa; color:#004d40;}
+.night .box { background:#333366; color:#f0f0f0;}
+
+.day #antworten button:not(.btn-der):not(.btn-die):not(.btn-das):not(.btn-special) {
+  background:#80cbc4;
+  color:#004d40;
+}
+
+.night #antworten button:not(.btn-der):not(.btn-die):not(.btn-das):not(.btn-special) {
+  background:#4444aa;
+  color:#fff;
+}
+
+.day #timerBar { background:#00796b; }
+.night #timerBar { background:#448aff; }
+.day #progressBar.level2 { background:#4caf50; }
+.night #progressBar.level2 { background:#2e7d32; }
+/* Highscore Tag/Nacht */
+.day .highscoreBox { background:#f0f0f0; color:#004d40; }
+.night .highscoreBox { background:#333366; color:#fff; }
+
+/* Farbige Buttons */
+.green { background:#4caf50; color:#fff;}
+.yellow { background:#ffeb3b; color:#000;}
+.red { background:#f44336; color:#fff;}
+.correct-answer { color: #00ff00; font-weight:bold; }
+
+.deutsches-wort {
+  color: orange;
+  font-size: 44px;      /* 👉 größer */
+  font-weight: bold;
+ width: 100%;
+  margin-bottom: 20px;  /* 👉 mehr Abstand nach unten */
+}
+
+/* --- ✅ NEU: LOGO oben links --- */
+#logo {
+position: fixed;
+top: 10px;
+left: 10px;
+width: 360px;
+height: auto;
+z-index: 1000;
+opacity: 0.9;
+transition: all 0.3s;
+}
+#logo:hover {
+transform: scale(1.05);
+opacity: 1;
+}
+.night #logo {
+filter: brightness(1.2);
+} </style>
+
+</head>
+<body class="day">
+
+<!-- ✅ NEU: Logo -->
+
+<img src="logo.png" id="logo">
+
+<h1 id="gameTitle">Vokabelspiel MA 🎮</h1>
+
+<select id="themeSelector">
+<option value="day">Tagesmodus</option>
+<option value="night">Nachtmodus</option>
+</select>
+
+<div id="startScreen">
+  <label>Dein Name:
+    <input id="playerName" placeholder="Name eingeben">
+  </label>
+
+  <label>Gesamtzeit wählen:
+    <select id="timeSelector">
+      <option value="60">1 Minute</option>
+      <option value="180">3 Minuten</option>
+      <option value="300">5 Minuten</option>
+    </select>
+  </label>
+
+  <label>HSK-Level wählen:
+    <select id="hskSelector">
+      <option value="all">Alle</option>
+      <option value="HSK1">HSK1</option>
+      <option value="HSK2">HSK2</option>
+      <option value="HSK3">HSK3</option>
+      <option value="HSK4">HSK4</option>
+      <option value="HSK5">HSK5</option>
+    </select>
+  </label>
+
+  <button id="startBtn">Spiel starten</button>
+</div>
+
+<div id="gameWrapper">
+
+  <div id="gameArea">
+
+	<div id="status" style="display:none;">
+<div class="box">
+  <span>Punkte:</span>
+  <span id="punkte">0</span>
+</div>
+
+<div class="box">
+  <span>Gesamtzeit:</span>
+  <span id="gesamtzeit">0</span>
+  <span>&nbsp;s</span>
+</div>
+	<div id="leben" class="box">❤️❤️❤️</div>
+	</div>
+
+	<div id="wort"></div>
+	<div id="timerBarContainer"><div id="timerBar"></div></div>
+	<div id="progressContainer"><div id="progressBar" class="level2"></div></div>
+	<div id="antworten"></div>
+	<div id="feedback"></div>
+
+	</div>
+
+<div id="highscoresContainer">
+  <div id="highscoreList2" class="highscoreBox"></div>
+	</div>
+
+</div>
+
+<div id="top10Popup"></div>
+<div id="overlay"></div>
+<div id="timeOverPopup"></div>
+
+<audio id="richtig" src="https://freesound.org/data/previews/320/320654_5260870-lq.mp3"></audio> <audio id="falsch" src="https://freesound.org/data/previews/82/82921_1022653-lq.mp3"></audio>
+
+<script>
+// --- Theme ---
+document.getElementById("themeSelector").addEventListener("change", e=>{document.body.className=e.target.value;});
+
+// --- Shuffle ---
+function shuffleArray(array){ for(let i=array.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [array[i],array[j]]=[array[j],array[i]];}}
+
+// --- Verben ---
+let level2=[
+["HSK1","爱","ài","lieben"],
+["HSK1","八","bā","acht"],
+["HSK1","爸爸","bàba","Vater"],
+["HSK1","杯子","bēizi","Tasse"],
+["HSK1","北京","Běijīng","Peking"],
+["HSK1","本","běn","Zählwort für Bücher"],
+["HSK1","不","bù","nicht"],
+["HSK1","菜","cài","Gericht, Essen"],
+["HSK1","茶","chá","Tee"],
+["HSK1","吃","chī","essen"],
+["HSK1","出租车","chūzūchē","Taxi"],
+["HSK1","打电话","dǎ diànhuà","anrufen"],
+["HSK1","大","dà","groß"],
+["HSK1","的","de","Partikel"],
+["HSK1","点","diǎn","Uhr, Punkt"],
+["HSK1","电脑","diànnǎo","Computer"],
+["HSK1","电视","diànshì","Fernseher"],
+["HSK1","电影","diànyǐng","Film"],
+["HSK1","东西","dōngxi","Sache"],
+["HSK1","都","dōu","alle"],
+["HSK1","读","dú","lesen"],
+["HSK1","对不起","duìbuqǐ","Entschuldigung"],
+["HSK1","多","duō","viel"],
+["HSK1","多少","duōshao","wie viel"],
+["HSK1","儿子","érzi","Sohn"],
+["HSK1","二","èr","zwei"],
+["HSK1","饭店","fàndiàn","Restaurant"],
+["HSK1","飞机","fēijī","Flugzeug"],
+["HSK1","分钟","fēnzhōng","Minute"],
+["HSK1","高兴","gāoxìng","glücklich"],
+["HSK1","个","gè","Zählwort"],
+["HSK1","工作","gōngzuò","arbeiten"],
+["HSK1","狗","gǒu","Hund"],
+["HSK1","汉语","Hànyǔ","Chinesisch"],
+["HSK1","好","hǎo","gut"],
+["HSK1","号","hào","Nummer"],
+["HSK1","喝","hē","trinken"],
+["HSK1","和","hé","und"],
+["HSK1","很","hěn","sehr"],
+["HSK1","后面","hòumiàn","hinten"],
+["HSK1","回","huí","zurückkehren"],
+["HSK1","会","huì","können"],
+["HSK1","几","jǐ","wie viele"],
+["HSK1","家","jiā","Familie"],
+["HSK1","叫","jiào","heißen"],
+["HSK1","今天","jīntiān","heute"],
+["HSK1","九","jiǔ","neun"],
+["HSK1","开","kāi","öffnen"],
+["HSK1","看","kàn","sehen"],
+["HSK1","看见","kànjiàn","erblicken"],
+["HSK1","块","kuài","Zählwort, Yuan"],
+["HSK1","来","lái","kommen"],
+["HSK1","老师","lǎoshī","Lehrer"],
+["HSK1","了","le","Partikel"],
+["HSK1","冷","lěng","kalt"],
+["HSK1","里","lǐ","in"],
+["HSK1","六","liù","sechs"],
+["HSK1","妈妈","māma","Mutter"],
+["HSK1","吗","ma","Fragepartikel"],
+["HSK1","买","mǎi","kaufen"],
+["HSK1","猫","māo","Katze"],
+["HSK1","没","méi","nicht haben"],
+["HSK1","没有","méiyǒu","nicht haben"],
+["HSK1","米饭","mǐfàn","Reis"],
+["HSK1","明天","míngtiān","morgen"],
+["HSK1","名字","míngzi","Name"],
+["HSK1","哪","nǎ","welche"],
+["HSK1","哪儿","nǎr","wo"],
+["HSK1","那","nà","das"],
+["HSK1","呢","ne","Fragepartikel"],
+["HSK1","能","néng","können"],
+["HSK1","你","nǐ","du"],
+["HSK1","年","nián","Jahr"],
+["HSK1","女儿","nǚ’ér","Tochter"],
+["HSK1","朋友","péngyou","Freund"],
+["HSK1","漂亮","piàoliang","schön"],
+["HSK1","苹果","píngguǒ","Apfel"],
+["HSK1","七","qī","sieben"],
+["HSK1","钱","qián","Geld"],
+["HSK1","前面","qiánmiàn","vorne"],
+["HSK1","请","qǐng","bitten"],
+["HSK1","去","qù","gehen"],
+["HSK1","热","rè","heiß"],
+["HSK1","人","rén","Mensch"],
+["HSK1","认识","rènshi","kennen"],
+["HSK1","三","sān","drei"],
+["HSK1","商店","shāngdiàn","Geschäft"],
+["HSK1","上","shàng","oben"],
+["HSK1","上午","shàngwǔ","Vormittag"],
+["HSK1","少","shǎo","wenig"],
+["HSK1","谁","shéi","wer"],
+["HSK1","什么","shénme","was"],
+["HSK1","十","shí","zehn"],
+["HSK1","时候","shíhou","Zeitpunkt"],
+["HSK1","是","shì","sein"],
+["HSK1","书","shū","Buch"],
+["HSK1","水","shuǐ","Wasser"],
+["HSK1","水果","shuǐguǒ","Obst"],
+["HSK1","睡觉","shuìjiào","schlafen"],
+["HSK1","说","shuō","sprechen"],
+["HSK1","四","sì","vier"],
+["HSK1","岁","suì","Jahre alt"],
+["HSK1","他","tā","er"],
+["HSK1","她","tā","sie"],
+["HSK1","太","tài","zu"],
+["HSK1","天气","tiānqì","Wetter"],
+["HSK1","听","tīng","hören"],
+["HSK1","同学","tóngxué","Mitschüler"],
+["HSK1","喂","wèi","Hallo (Telefon)"],
+["HSK1","我","wǒ","ich"],
+["HSK1","我们","wǒmen","wir"],
+["HSK1","五","wǔ","fünf"],
+["HSK1","喜欢","xǐhuān","mögen"],
+["HSK1","下","xià","unten"],
+["HSK1","下午","xiàwǔ","Nachmittag"],
+["HSK1","下雨","xiàyǔ","regen"],
+["HSK1","先生","xiānsheng","Herr"],
+["HSK1","现在","xiànzài","jetzt"],
+["HSK1","想","xiǎng","wollen"],
+["HSK1","小","xiǎo","klein"],
+["HSK1","小姐","xiǎojiě","Fräulein"],
+["HSK1","些","xiē","einige"],
+["HSK1","写","xiě","schreiben"],
+["HSK1","谢谢","xièxie","danke"],
+["HSK1","星期","xīngqī","Woche"],
+["HSK1","学生","xuésheng","Schüler"],
+["HSK1","学习","xuéxí","lernen"],
+["HSK1","学校","xuéxiào","Schule"],
+["HSK1","一","yī","eins"],
+["HSK1","一点儿","yìdiǎnr","ein bisschen"],
+["HSK1","衣服","yīfu","Kleidung"],
+["HSK1","医生","yīshēng","Arzt"],
+["HSK1","医院","yīyuàn","Krankenhaus"],
+["HSK1","椅子","yǐzi","Stuhl"],
+["HSK1","有","yǒu","haben"],
+["HSK1","月","yuè","Monat"],
+["HSK1","再见","zàijiàn","auf Wiedersehen"],
+["HSK1","在","zài","in, sein"],
+["HSK1","怎么","zěnme","wie"],
+["HSK1","怎么样","zěnmeyàng","wie ist es"],
+["HSK1","这","zhè","dies"],
+["HSK1","中国","Zhōngguó","China"],
+["HSK1","中午","zhōngwǔ","Mittag"],
+["HSK1","住","zhù","wohnen"],
+["HSK1","桌子","zhuōzi","Tisch"],
+["HSK1","字","zì","Schriftzeichen"],
+["HSK1","昨天","zuótiān","gestern"],
+["HSK1","做","zuò","machen"],
+["HSK1","坐","zuò","sitzen"],
+["HSK2","吧","ba","Modalpartikel"],
+["HSK2","白","bái","weiß"],
+["HSK2","百","bǎi","hundert"],
+["HSK2","帮助","bāngzhù","helfen"],
+["HSK2","报纸","bàozhǐ","Zeitung"],
+["HSK2","比","bǐ","vergleichen"],
+["HSK2","别","bié","nicht, lass"],
+["HSK2","宾馆","bīnguǎn","Hotel"],
+["HSK2","长","cháng","lang"],
+["HSK2","唱歌","chànggē","singen"],
+["HSK2","出","chū","herausgehen"],
+["HSK2","穿","chuān","anziehen"],
+["HSK2","次","cì","Mal (Zählwort)"],
+["HSK2","从","cóng","von"],
+["HSK2","错","cuò","falsch"],
+["HSK2","打篮球","dǎ lánqiú","Basketball spielen"],
+["HSK2","大家","dàjiā","alle"],
+["HSK2","但是","dànshì","aber"],
+["HSK2","到","dào","ankommen"],
+["HSK2","得","de","Partikel"],
+["HSK2","等","děng","warten"],
+["HSK2","弟弟","dìdi","jüngerer Bruder"],
+["HSK2","第一","dì yī","erste"],
+["HSK2","懂","dǒng","verstehen"],
+["HSK2","对","duì","richtig"],
+["HSK2","房间","fángjiān","Zimmer"],
+["HSK2","非常","fēicháng","sehr"],
+["HSK2","服务员","fúwùyuán","Kellner"],
+["HSK2","高","gāo","hoch"],
+["HSK2","告诉","gàosu","sagen"],
+["HSK2","哥哥","gēge","älterer Bruder"],
+["HSK2","给","gěi","geben"],
+["HSK2","公共汽车","gōnggòng qìchē","Bus"],
+["HSK2","公司","gōngsī","Firma"],
+["HSK2","贵","guì","teuer"],
+["HSK2","过","guò","Erfahrungs-Partikel"],
+["HSK2","还","hái","noch"],
+["HSK2","孩子","háizi","Kind"],
+["HSK2","好吃","hǎochī","lecker"],
+["HSK2","黑","hēi","schwarz"],
+["HSK2","红","hóng","rot"],
+["HSK2","欢迎","huānyíng","willkommen"],
+["HSK2","回答","huídá","antworten"],
+["HSK2","机场","jīchǎng","Flughafen"],
+["HSK2","鸡蛋","jīdàn","Ei"],
+["HSK2","件","jiàn","Zählwort"],
+["HSK2","教室","jiàoshì","Klassenzimmer"],
+["HSK2","姐姐","jiějie","ältere Schwester"],
+["HSK2","介绍","jièshào","vorstellen"],
+["HSK2","进","jìn","eintreten"],
+["HSK2","近","jìn","nahe"],
+["HSK2","就","jiù","dann, sofort"],
+["HSK2","觉得","juéde","finden, denken"],
+["HSK2","咖啡","kāfēi","Kaffee"],
+["HSK2","开始","kāishǐ","beginnen"],
+["HSK2","考试","kǎoshì","Prüfung"],
+["HSK2","可能","kěnéng","möglich"],
+["HSK2","可以","kěyǐ","dürfen"],
+["HSK2","课","kè","Unterricht"],
+["HSK2","快","kuài","schnell"],
+["HSK2","快乐","kuàilè","glücklich"],
+["HSK2","累","lèi","müde"],
+["HSK2","离","lí","(Entfernung von)"],
+["HSK2","两","liǎng","zwei (für Zählwörter)"],
+["HSK2","零","líng","null"],
+["HSK2","路","lù","Weg"],
+["HSK2","旅游","lǚyóu","reisen"],
+["HSK2","卖","mài","verkaufen"],
+["HSK2","慢","màn","langsam"],
+["HSK2","忙","máng","beschäftigt"],
+["HSK2","每","měi","jeder"],
+["HSK2","妹妹","mèimei","jüngere Schwester"],
+["HSK2","门","mén","Tür"],
+["HSK2","面条","miàntiáo","Nudeln"],
+["HSK2","男","nán","männlich"],
+["HSK2","您","nín","Sie (höflich)"],
+["HSK2","牛奶","niúnǎi","Milch"],
+["HSK2","女人","nǚrén","Frau"],
+["HSK2","旁边","pángbiān","neben"],
+["HSK2","跑步","pǎobù","joggen"],
+["HSK2","便宜","piányi","billig"],
+["HSK2","票","piào","Ticket"],
+["HSK2","妻子","qīzi","Ehefrau"],
+["HSK2","起床","qǐchuáng","aufstehen"],
+["HSK2","千","qiān","tausend"],
+["HSK2","铅笔","qiānbǐ","Bleistift"],
+["HSK2","晴","qíng","sonnig"],
+["HSK2","去年","qùnián","letztes Jahr"],
+["HSK2","让","ràng","lassen"],
+["HSK2","日","rì","Tag"],
+["HSK2","上班","shàngbān","arbeiten gehen"],
+["HSK2","身体","shēntǐ","Körper"],
+["HSK2","生病","shēngbìng","krank werden"],
+["HSK2","生日","shēngrì","Geburtstag"],
+["HSK2","时间","shíjiān","Zeit"],
+["HSK2","事情","shìqing","Sache"],
+["HSK2","手","shǒu","Hand"],
+["HSK2","手机","shǒujī","Handy"],
+["HSK2","送","sòng","schenken"],
+["HSK2","虽然","suīrán","obwohl"],
+["HSK2","它","tā","es"],
+["HSK2","踢足球","tī zúqiú","Fußball spielen"],
+["HSK2","题","tí","Frage"],
+["HSK2","跳舞","tiàowǔ","tanzen"],
+["HSK2","外","wài","außen"],
+["HSK2","完","wán","fertig"],
+["HSK2","玩","wán","spielen"],
+["HSK2","晚上","wǎnshàng","Abend"],
+["HSK2","往","wǎng","in Richtung"],
+["HSK2","为什么","wèishénme","warum"],
+["HSK2","问","wèn","fragen"],
+["HSK2","问题","wèntí","Problem"],
+["HSK2","西瓜","xīguā","Wassermelone"],
+["HSK2","希望","xīwàng","hoffen"],
+["HSK2","洗","xǐ","waschen"],
+["HSK2","小时","xiǎoshí","Stunde"],
+["HSK2","笑","xiào","lachen"],
+["HSK2","新","xīn","neu"],
+["HSK2","姓","xìng","Nachname"],
+["HSK2","休息","xiūxi","ausruhen"],
+["HSK2","雪","xuě","Schnee"],
+["HSK2","颜色","yánsè","Farbe"],
+["HSK2","眼睛","yǎnjing","Auge"],
+["HSK2","羊肉","yángròu","Lammfleisch"],
+["HSK2","药","yào","Medizin"],
+["HSK2","要","yào","wollen"],
+["HSK2","也","yě","auch"],
+["HSK2","已经","yǐjīng","bereits"],
+["HSK2","一起","yìqǐ","zusammen"],
+["HSK2","意思","yìsi","Bedeutung"],
+["HSK2","因为","yīnwèi","weil"],
+["HSK2","游泳","yóuyǒng","schwimmen"],
+["HSK2","右边","yòubiān","rechts"],
+["HSK2","鱼","yú","Fisch"],
+["HSK2","远","yuǎn","weit"],
+["HSK2","运动","yùndòng","Sport"],
+["HSK2","再","zài","wieder"],
+["HSK2","早上","zǎoshang","Morgen"],
+["HSK2","丈夫","zhàngfu","Ehemann"],
+["HSK2","找","zhǎo","suchen"],
+["HSK2","着","zhe","Partikel"],
+["HSK2","真","zhēn","wirklich"],
+["HSK2","正在","zhèngzài","gerade"],
+["HSK2","知道","zhīdào","wissen"],
+["HSK2","准备","zhǔnbèi","vorbereiten"],
+["HSK2","走","zǒu","gehen"],
+["HSK2","最","zuì","am meisten"],
+["HSK2","左边","zuǒbiān","links"]
+];
+
+
+// --- Spielvariablen ---
+let punkte=0, aktuelleFrage=0, zeit=10, timerID, leben=3, playerName="";
+let selectedHSK = "all";
+let gefilterteListe = [];
+let combo = 0;
+let gesamtSpielZeit=60, gesamtSekunden=0, gesamtTimerID;
+
+// --- Highscore ---
+function getHighscores(){ return JSON.parse(localStorage.getItem("vokabelHighscores_level2")||"[]"); }
+function saveHighscores(hs){ localStorage.setItem("vokabelHighscores_level2",JSON.stringify(hs)); }
+
+
+function updateAllHighscores(){
+  let hs = getHighscores();
+  hs.sort((a,b)=>b.punkte-a.punkte);
+
+  let html = "<div class='highscore-title'>🏆 Highscore</div>";
+
+  hs.slice(0,10).forEach((e,i)=>{
+    let klasse = "";
+
+    if(i === 0) klasse = "gold";
+    else if(i === 1) klasse = "silver";
+    else if(i === 2) klasse = "bronze";
+
+    if(e.name === playerName) klasse += " me";
+
+    let medal = ["🥇","🥈","🥉"][i] || "";
+
+    let medalHTML = "";
+    if(i < 3){
+      medalHTML = `<div class="medal-circle">${medal}</div>`;
+    }
+
+    html += `
+      <div class="highscore-item ${klasse}">
+        
+        <div class="highscore-row">
+          ${medalHTML}
+          <div class="highscore-name">${i+1}. ${e.name}</div>
+        </div>
+
+        <div class="highscore-points">${e.punkte} Punkte</div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("highscoreList2").innerHTML = html;
+}
+
+// --- Popups ---
+function showTop10Popup(name,punkte,rang){
+  const popup=document.getElementById("top10Popup");
+  popup.innerHTML=`🎉 Glückwunsch ${name}! <br> Rang ${rang} in den Top 10! <br> Punkte: ${punkte}`;
+  popup.style.display="block";
+  setTimeout(()=>{popup.style.display="none";},4000);
+}
+
+// --- Start ---
+document.getElementById("startBtn").onclick=function(){
+document.getElementById("gameTitle").innerText = "Vokabelspiel MA 🎮";
+document.getElementById("highscoresContainer").style.display = "block";
+document.getElementById("timerBarContainer").style.display = "block";
+document.getElementById("progressContainer").style.display = "block";
+
+  playerName=document.getElementById("playerName").value.trim()||"Spieler";
+selectedHSK = document.getElementById("hskSelector").value;
+
+if(selectedHSK === "all"){
+  gefilterteListe = [...level2];
+} else {
+  gefilterteListe = level2.filter(e => e[0] === selectedHSK);
+}
+
+shuffleArray(gefilterteListe);
+  gesamtSpielZeit=parseInt(document.getElementById("timeSelector").value);
+  document.getElementById("startScreen").style.display="none";
+  document.getElementById("status").style.display="flex";
+  updateLebenAnzeige(); updateAllHighscores(); startGesamtTimer(); starteFrage();
+}
+
+// --- Timer ---
+function updateTimerBar(){document.getElementById("timerBar").style.width=(zeit/10*100)+"%";}
+function startTimer(){ clearInterval(timerID); zeit=10; updateTimerBar();
+  timerID=setInterval(()=>{
+    zeit-=0.1;
+    if(zeit<0) zeit=0;
+    updateTimerBar();
+    if(zeit===0){ clearInterval(timerID); zeitAbgelaufen(); }
+  },100);
+}
+
+// --- Popups und Antworten ---
+
+
+function zeitAbgelaufen(){
+combo = 0;
+const w = gefilterteListe[aktuelleFrage];const correct = w[1] + " (" + w[2] + ")";
+
+
+  document.getElementById("overlay").style.display="block";
+  const popup=document.getElementById("timeOverPopup");
+  popup.innerHTML=`⏰ Zeit abgelaufen!<br>Richtige Antwort: <span class="correct-answer-highlight">${correct}</span>`;
+  popup.style.display="block";
+ setTimeout(()=>{
+  document.getElementById("overlay").style.display="none";
+  popup.style.display="none";
+
+  // ❗ KEIN zweites Popup mehr
+  leben--;
+  updateLebenAnzeige();
+
+  if(leben <= 0){
+    spielZurücksetzen();
+  } else {
+    nächsteFrage();
+  }
+
+},4000);
+}
+
+document.getElementById("richtig").volume=0.3;
+document.getElementById("falsch").volume=0.3;
+
+function updateLebenAnzeige(){ let str=""; for(let i=0;i<leben;i++) str+="❤️"; document.getElementById("leben").innerHTML=str; }
+
+function startGesamtTimer(){ clearInterval(gesamtTimerID); gesamtSekunden=0; document.getElementById("gesamtzeit").innerText=gesamtSekunden;
+  gesamtTimerID=setInterval(()=>{
+    gesamtSekunden++; document.getElementById("gesamtzeit").innerText=gesamtSekunden;
+    if(gesamtSekunden>=gesamtSpielZeit){ clearInterval(gesamtTimerID);
+      document.getElementById("overlay").style.display="block";
+      const popup=document.getElementById("timeOverPopup");
+      popup.innerHTML=`⏰ Gesamtzeit abgelaufen!<br>Punkte: ${punkte}`;
+      popup.style.display="block";
+      setTimeout(()=>{
+        document.getElementById("overlay").style.display="none";
+        popup.style.display="none";
+        addHighscore(playerName,punkte);
+        punkte=0; aktuelleFrage=0; leben=3; document.getElementById("punkte").innerText=0; document.getElementById("gesamtzeit").innerText=0; updateLebenAnzeige(); startGesamtTimer(); starteFrage();
+      },4000);
+    }
+  },1000);
+}
+
+// --- Highscore Funktionen ---
+function addHighscore(name,punkte){
+  let hs=getHighscores();
+  hs.push({name,punkte}); hs.sort((a,b)=>b.punkte-a.punkte);
+  if(hs.length>10) hs=hs.slice(0,10);
+  saveHighscores(hs); updateAllHighscores();
+  let rang=hs.findIndex(e=>e.name===name && e.punkte===punkte)+1;
+  if(rang>0 && rang<=10) showTop10Popup(name,punkte,rang);
+}
+
+function getPunkte(level){
+  switch(level){
+    case "HSK1": return 1;
+    case "HSK2": return 2;
+    case "HSK3": return 3;
+    case "HSK4": return 4;
+    case "HSK5": return 5;
+    default: return 1;
+  }
+}
+
+// --- Spiel zurücksetzen ---
+function spielZurücksetzen(){ clearInterval(gesamtTimerID); alert("Keine Leben mehr! Spiel wird zurückgesetzt."); addHighscore(playerName,punkte); punkte=0; aktuelleFrage=0; leben=3; document.getElementById("punkte").innerText=punkte; document.getElementById("gesamtzeit").innerText=0; updateLebenAnzeige(); startGesamtTimer(); starteFrage(); }
+
+// --- Frage ---
+function starteFrage(){
+  clearInterval(timerID);
+  document.getElementById("feedback").innerText="";
+  document.getElementById("antworten").innerHTML="";
+  updateProgress();
+
+if(aktuelleFrage>=gefilterteListe.length) aktuelleFrage=0;
+const w = gefilterteListe[aktuelleFrage];
+
+  // 👉 Spanisches Verb anzeigen
+let hskClass = w[0].toLowerCase(); // hsk1, hsk2 ...
+
+document.getElementById("wort").innerHTML = `
+  <div class="wort-box">
+    ${w[3]} <br>
+    <span class="hsk-label ${hskClass}">${w[0]}</span>
+  </div>
+`;
+
+  // 👉 Richtige + falsche Antworten erzeugen
+let korrekt = w[1] + " (" + w[2] + ")";
+let antworten = [korrekt];
+
+while(antworten.length < 4){
+let rand = gefilterteListe[Math.floor(Math.random()*gefilterteListe.length)];  let falsch = rand[1] + " (" + rand[2] + ")";
+  if(!antworten.includes(falsch)) antworten.push(falsch);
+}
+
+  shuffleArray(antworten);
+
+  antworten.forEach(a=>{
+    const btn = document.createElement("button");
+    btn.innerText = a;
+
+btn.onclick = ()=>checkAntwort(a, korrekt);
+document.getElementById("antworten").appendChild(btn);
+  });
+
+  startTimer();
+}
+
+
+
+// --- Antwort prüfen ---
+function checkAntwort(eingabe,richtig){ clearInterval(timerID); if(eingabe===richtig) richtigAntwort(); else falschAntwort(richtig);}
+
+function richtigAntwort(){
+  combo++;
+
+  let w = gefilterteListe[aktuelleFrage];
+  let level = w[0];
+
+  let punktePlus = getPunkte(level);
+
+  if(combo >= 3){
+    punktePlus += combo;
+    document.getElementById("feedback").innerText = "🔥 Combo x" + combo;
+  } else {
+    document.getElementById("feedback").innerText = "Richtig! 🎉";
+  }
+
+  document.getElementById("richtig").currentTime=0;
+  document.getElementById("richtig").play();
+
+  punkte += punktePlus;
+  document.getElementById("punkte").innerText = punkte;
+
+  nächsteFrage();
+}
+
+
+function falschAntwort(richtig){
+combo = 0;
+  leben--; updateLebenAnzeige(); 
+  const popup=document.getElementById("timeOverPopup");
+  document.getElementById("overlay").style.display="block";
+
+popup.innerHTML=`
+<div class="error-icon">✖</div>
+<span class="correct-answer-highlight">${richtig}</span>
+`;
+
+popup.style.display="block";
+  document.getElementById("falsch").currentTime=0; document.getElementById("falsch").play();
+  setTimeout(()=>{
+    document.getElementById("overlay").style.display="none"; popup.style.display="none";
+    if(leben<=0) spielZurücksetzen(); else nächsteFrage();
+  },4000);
+}
+
+
+
+function nächsteFrage(){aktuelleFrage++; starteFrage();}
+function updateProgress(){
+  const pr = ((aktuelleFrage+1)/gefilterteListe.length)*100;
+document.getElementById("progressBar").style.width=pr+"%";}
+</script>
+
+<div id="footer">
+  © 2026 miStudia.de - Markus Autsch – Vokabelspiel MA
+</div>
+
+</body>
+
+
+</html>
